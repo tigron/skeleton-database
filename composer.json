@@ -1,0 +1,15 @@
+{
+    "name": "tigron/skeleton-database",
+    "description": "Tigron Skeleton Mysql database layer",
+    "type": "library",
+    "require": {
+		"ext-mysql": "*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tigron BVBA",
+            "email": "support@tigron.be"
+        }
+    ]
+}
