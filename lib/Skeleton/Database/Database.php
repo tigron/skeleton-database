@@ -6,7 +6,7 @@
  * @author Gerry Demaret <gerry@tigron.be>
  */
 
-namespace \Skeleton\Database;
+namespace Skeleton\Database;
 
 class Database {
 	/**
@@ -14,6 +14,14 @@ class Database {
 	 * @access private
 	 */
 	private static $proxy = [];
+
+	/**
+	 * Default DSN
+	 *
+	 * @access private
+	 * @var string $default_dsn
+	 */
+	private static $default_dsn = null;
 
 	/**
 	 * Private (disabled) constructor
@@ -28,7 +36,13 @@ class Database {
 	 * @return DB
 	 * @access public
 	 */
-	public static function Get($dsn = null) {
+	public static function Get($dsn = null, $use_as_default = false) {
+		if ($dsn !== null AND $use_as_default) {
+			self::$default_dsn = $dsn;
+		} elseif ($dsn === null AND self::$default_dsn !== null) {
+			$dsn = self::$default_dsn;
+		}
+
 		if (!isset(self::$proxy[$dsn]) OR self::$proxy[$dsn] == false) {
 			self::$proxy[$dsn] = new Proxy();
 			self::$proxy[$dsn]->connect($dsn);

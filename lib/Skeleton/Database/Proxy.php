@@ -7,6 +7,8 @@
  * @author David Vandemaele <david@tigron.be>
  */
 
+namespace Skeleton\Database;
+
 class Proxy {
 	/**
 	 * @var mysqli $database The database connection to MySQL
@@ -46,20 +48,20 @@ class Proxy {
 
 		// If we can't even parse the DSN, don't bother
 		if (!isset($settings['path']) OR !isset($settings['host']) OR !isset($settings['user'])) {
-			throw new Exception('Could not connect to database: DSN incorrect');
+			throw new \Exception('Could not connect to database: DSN incorrect');
 		}
 
 		// We don't support connecting to UNIX sockets the traditional way
 		if ($settings['host'] == 'unix(') {
-			throw new Exception('Could not connect to database: UNIX socket syntax is wrong');
+			throw new \Exception('Could not connect to database: UNIX socket syntax is wrong');
 		}
 
 		$settings['path'] = substr($settings['path'], 1);
-		$this->database = new mysqli($settings['host'], $settings['user'], $settings['pass'], $settings['path']);
+		$this->database = new \Mysqli($settings['host'], $settings['user'], $settings['pass'], $settings['path']);
 
 		// If there is an error connecting to the database, stop doing what you're doing
 		if ($this->database->connect_errno != 0) {
-			throw new Exception('Could not connect to database: ' . $this->database->connect_error);
+			throw new \Exception('Could not connect to database: ' . $this->database->connect_error);
 		}
 
 		$this->database->set_charset('utf8');
@@ -104,6 +106,30 @@ class Proxy {
 			return stripslashes($string);
 		}
 	}
+
+	/**
+	 * Filter fields to insert/update table
+	 *
+	 * @access public
+	 * @param string $table
+	 * @param array $data
+	 * @return $filtered_data
+	 */
+	private function filter_table_data($table, $data) {
+		$table_fields = $this->get_columns($table);
+		$result = [];
+		foreach ($table_fields as $field) {
+			if (array_key_exists($field, $data)) {
+				$result[$field] = $data[$field];
+			}
+		}
+
+		if (count($data) == 0) {
+			return [];
+		}
+		return $result;
+	}
+
 
 	/**
 	 * Get all column names for a given table
@@ -313,7 +339,7 @@ class Proxy {
 	 * @param array $params The values to insert into the table
 	 */
 	public function insert($table, $params) {
-		$params = Util::mysql_filter_table_data($table, $params, $this);
+		$params = $this->filter_table_data($table, $params, $this);
 
 		$keys = array_keys($params);
 		foreach ($keys as $key => $value) {
@@ -343,7 +369,7 @@ class Proxy {
 	 * @param string $where A WHERE-clause to add to the query
 	 */
 	public function update($table, $params, $where) {
-		$params = Util::mysql_filter_table_data($table, $params, $this);
+		$params = $this->filter_table_data($table, $params, $this);
 
 		$keys = array_keys($params);
 		foreach ($keys as $key => $value) {
