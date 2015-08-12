@@ -11,5 +11,9 @@
             "name": "Tigron BVBA",
             "email": "support@tigron.be"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": { "Skeleton\\Database": "lib/Skeleton/Database/" }
+    },
+
 }
