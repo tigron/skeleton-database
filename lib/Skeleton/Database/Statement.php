@@ -20,7 +20,7 @@ class Statement extends \Mysqli_Stmt {
 	public function __construct($database_resource, $query) {
 		parent::__construct($database_resource, $query);
 		if ($this->sqlstate != 0) {
-			throw new Exception($this->error);
+			throw new \Exception($this->error);
 		}
 	}
 
