@@ -44,8 +44,7 @@ class Database {
 		}
 
 		if (!isset(self::$proxy[$dsn]) OR self::$proxy[$dsn] == false) {
-			self::$proxy[$dsn] = new Proxy();
-			self::$proxy[$dsn]->connect($dsn);
+			self::$proxy[$dsn] = new Proxy($dsn);
 		}
 		return self::$proxy[$dsn];
 	}

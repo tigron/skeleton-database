@@ -29,11 +29,28 @@ class Proxy {
 	public $query_log = [];
 
 	/**
+	 * Connected
+	 *
+	 * @var bool $connected
+	 * @access private
+	 */
+	private $connected = false;
+
+	/**
+	 * Connection string
+	 *
+	 * @var string $dsn
+	 * @access private
+	 */
+	private $dsn = null;
+
+	/**
 	 * Database_Proxy constructor
 	 *
 	 * @access public
 	 */
-	public function __construct() {
+	public function __construct($dsn) {
+		$this->dsn = $dsn;
 	}
 
 	/**
@@ -43,8 +60,8 @@ class Proxy {
 	 * @param string $dsn The database source name you want to connect to
 	 * @throws Exception Throws an Exception when the Database is unavailable
 	 */
-	public function connect($dsn) {
-		$settings = parse_url($dsn);
+	public function connect() {
+		$settings = parse_url($this->dsn);
 
 		// If we can't even parse the DSN, don't bother
 		if (!isset($settings['path']) OR !isset($settings['host']) OR !isset($settings['user'])) {
@@ -65,6 +82,7 @@ class Proxy {
 		}
 
 		$this->database->set_charset('utf8');
+		$this->connected = true;
 	}
 
 	/**
@@ -235,6 +253,9 @@ class Proxy {
 	 * @throws Exception Throws an Exception when an unknown type is provided
 	 */
 	private function get_statement($query, $params = []) {
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$query_log = [$query, $params];
 		$this->query_log[] = $query_log;
 		$this->queries++;
