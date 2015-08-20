@@ -182,6 +182,19 @@ class Proxy {
 	}
 
 	/**
+	 * Get table indexes
+	 *
+	 * @access public
+	 * @param string $table
+	 */
+	public function get_table_indexes($table) {
+		$statement = $this->get_statement('SHOW INDEXES FROM ' . $this->quote_identifier($table), []);
+		$statement->execute();
+		$result = $statement->fetch_assoc();
+		return $result;
+	}
+
+	/**
 	 * Quote a variable so it can be used in a query
 	 *
 	 * @access public
