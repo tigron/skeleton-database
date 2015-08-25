@@ -299,11 +299,11 @@ class Proxy {
 				case is_double($param):
 					$types .= 'd';
 					break;
+				case is_null($param):
 				case is_string($param):
 					$types .= 's';
 					break;
 				case is_bool($param):
-				case is_null($param):
 				case is_array($param):
 				case is_object($param):
 				case is_resource($param):
