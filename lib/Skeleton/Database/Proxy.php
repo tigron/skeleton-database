@@ -307,9 +307,9 @@ class Proxy {
 				case is_array($param):
 				case is_object($param):
 				case is_resource($param):
-					throw new Exception('Unacceptable type used for bind_param.');
+					throw new \Exception('Unacceptable type used for bind_param.');
 				default:
-					throw new Exception('Unknown type used for bind_param.');
+					throw new \Exception('Unknown type used for bind_param.');
 			}
 
 			$refs[$key] = &$params[$key];
@@ -338,7 +338,7 @@ class Proxy {
 		if (count($result) == 0) {
 			return null;
 		} else if (count($result) > 1) {
-			throw new Exception('Resultset has more than 1 row');
+			throw new \Exception('Resultset has more than 1 row');
 		}
 
 		return $this->stripslashes_result($result[0]);
@@ -445,13 +445,13 @@ class Proxy {
 		}
 
 		if (count($result) > 1) {
-			throw new Exception('Result of get_one should only contain 1 row');
+			throw new \Exception('Result of get_one should only contain 1 row');
 		}
 
 		$row = array_shift($result);
 
 		if (count($row) != 1) {
-			throw new Exception('Result of get_one should only contain 1 column');
+			throw new \Exception('Result of get_one should only contain 1 column');
 		}
 
 		return $this->stripslashes_result(array_shift($row));
