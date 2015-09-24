@@ -86,4 +86,16 @@ class Statement extends \Mysqli_Stmt {
 
 		return $data;
 	}
+	
+	/**
+	 * Execute the statement
+	 *
+	 * @access public
+	 */
+	public function execute() {
+		parent::execute();
+		if ($this->errno > 0){
+			throw new \Exception($this->error);
+		}
+	}
 }
