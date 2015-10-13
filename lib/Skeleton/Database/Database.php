@@ -24,6 +24,14 @@ class Database {
 	private static $default_dsn = null;
 
 	/**
+	 * PIDs
+	 *
+	 * @var array $pids
+	 * @access private
+	 */
+	private static $pids = [];
+
+	/**
 	 * Private (disabled) constructor
 	 *
 	 * @access private
@@ -43,8 +51,18 @@ class Database {
 			$dsn = self::$default_dsn;
 		}
 
+		/**
+		 * A mysqli connection can only be accessed by the PID that has created it
+		 * Create a new Mysqli object after forking
+		 */
+		if (isset(self::$pids[$dsn]) and self::$pids[$dsn] != getmypid()) {
+			unset(self::$proxy[$dsn]);
+			unset(self::$pids[$dsn]);
+		}
+
 		if (!isset(self::$proxy[$dsn]) OR self::$proxy[$dsn] == false) {
 			self::$proxy[$dsn] = new Proxy($dsn);
+			self::$pids[$dsn] = getmypid();
 		}
 		return self::$proxy[$dsn];
 	}
