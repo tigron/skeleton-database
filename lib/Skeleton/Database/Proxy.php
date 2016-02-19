@@ -86,46 +86,6 @@ class Proxy {
 	}
 
 	/**
-	 * Perform "stripslashes" on an array, usually a resultset
-	 *
-	 * @access private
-	 * @param array $data The array to execute stripslashes on
-	 * @return array $result
-	 */
-	private function stripslashes_result($data) {
-		if ($data === null) {
-			return $data;
-		} elseif (is_array($data)) {
-			foreach ($data as $key => $field) {
-				if (is_array($field)) {
-					$data[$key] = $this->stripslashes_result($field);
-				} else {
-					$data[$key] = $this->custom_stripslashes($field);
-				}
-			}
-		} else {
-			return $this->custom_stripslashes($data);
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Custom stripslashes implementation which ignores null strings
-	 *
-	 * @access private
-	 * @param string $string The string to strip slashes from
-	 * @return mixed $result The result of the operation is either a string or null
-	 */
-	private function custom_stripslashes($string) {
-		if ($string === null) {
-			return $string;
-		} else {
-			return stripslashes($string);
-		}
-	}
-
-	/**
 	 * Filter fields to insert/update table
 	 *
 	 * @access public
@@ -164,7 +124,7 @@ class Proxy {
 			$columns[] = &$row['field'];
 		}
 
-		return $this->stripslashes_result($columns);
+		return $columns;
 	}
 
 	/**
@@ -341,7 +301,7 @@ class Proxy {
 			throw new \Exception('Resultset has more than 1 row');
 		}
 
-		return $this->stripslashes_result($result[0]);
+		return $result[0];
 	}
 
 	/**
@@ -362,7 +322,7 @@ class Proxy {
 			$col[] = array_shift($row);
 		}
 
-		return $this->stripslashes_result($col);
+		return $col;
 	}
 
 	/**
@@ -454,7 +414,7 @@ class Proxy {
 			throw new \Exception('Result of get_one should only contain 1 column');
 		}
 
-		return $this->stripslashes_result(array_shift($row));
+		return array_shift($row);
 	}
 
 	/**
@@ -467,7 +427,7 @@ class Proxy {
 	public function get_all($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
 		$statement->execute();
-		return $this->stripslashes_result($statement->fetch_assoc());
+		return $statement->fetch_assoc();
 	}
 
 	/**

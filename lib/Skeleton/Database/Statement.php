@@ -86,7 +86,7 @@ class Statement extends \Mysqli_Stmt {
 
 		return $data;
 	}
-	
+
 	/**
 	 * Execute the statement
 	 *
