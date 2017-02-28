@@ -66,4 +66,16 @@ class Database {
 		}
 		return self::$proxy[$dsn];
 	}
+
+	/**
+	 * Reset
+	 * Resets all existing connections
+	 *
+	 * @access public
+	 */
+	public static function Reset() {
+		self::$proxy = [];
+		self::$default_dsn = null;
+		self::$pids = [];
+	}
 }
