@@ -31,6 +31,7 @@ Installation via composer:
     $result = $db->get_row('SELECT * FROM user WHERE id=?', [ 1 ]); // Returns one row
     $result = $db->get_column('SELECT id FROM user', []); // Returns 1 column
     $result = $db->get_one('SELECT username FROM user WHERE id=?', [ 1 ]); // Returns 1 field
+    $columns = $db->get_columns('user'); // Gets the columns for table 'user'
 
     $data = [
     	'username' => 'testuser',
@@ -41,5 +42,8 @@ Installation via composer:
 
     $where = 'id=' . $db->quote(1);
     $result = $db->update('user', $data, $where); // Updates a row
+
+    // To remove all existing connections
+    Database::Reset();
 
 more to come...
