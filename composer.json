@@ -3,7 +3,7 @@
     "description": "Tigron Skeleton Mysql database layer",
     "type": "library",
     "require": {
-		"ext-mysql": "*"
+		"ext-mysqli": "*"
     },
     "license": "MIT",
     "authors": [
