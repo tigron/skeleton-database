@@ -75,7 +75,6 @@ class Database {
 	 */
 	public static function Reset() {
 		self::$proxy = [];
-		self::$default_dsn = null;
 		self::$pids = [];
 	}
 }
