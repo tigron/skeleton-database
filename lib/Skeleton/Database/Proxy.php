@@ -61,6 +61,7 @@ class Proxy {
 	 * @throws Exception Throws an Exception when the Database is unavailable
 	 */
 	public function connect() {
+		mysqli_report(MYSQLI_REPORT_STRICT);
 		$settings = parse_url($this->dsn);
 
 		// If we can't even parse the DSN, don't bother
@@ -74,7 +75,7 @@ class Proxy {
 		}
 
 		$settings['path'] = substr($settings['path'], 1);
-		$this->database = new \Mysqli($settings['host'], $settings['user'], $settings['pass'], $settings['path']);
+		$this->database = @new \Mysqli($settings['host'], $settings['user'], $settings['pass'], $settings['path']);
 
 		// If there is an error connecting to the database, stop doing what you're doing
 		if ($this->database->connect_errno != 0) {
