@@ -44,9 +44,9 @@ class Statement extends \Mysqli_Stmt {
 		$columns = [];
 		while ($column = $meta->fetch_field()) {
 			if ($database_in_key === true) {
-				$columns[] = $column->db . '.' . $column->table . '.' . strtolower($column->name);
+				$columns[] = $column->db . '.' . $column->table . '.' . $column->name;
 			} else {
-				$columns[] = $column->table . '.' . strtolower($column->name);
+				$columns[] = $column->table . '.' . $column->name;
 			}
 		}
 		return $columns;

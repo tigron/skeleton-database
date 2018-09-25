@@ -97,9 +97,10 @@ class Proxy {
 	private function filter_table_data($table, $data) {
 		$table_fields = $this->get_columns($table);
 		$result = [];
+
 		foreach ($table_fields as $field) {
 			if (array_key_exists($field, $data)) {
-				$result[$field] = $data[$field];
+				$result[ $field ] = $data[$field];
 			}
 		}
 
@@ -122,7 +123,7 @@ class Proxy {
 
 		$columns = [];
 		foreach ($result as $row) {
-			$columns[] = &$row['field'];
+			$columns[] = &$row['Field'];
 		}
 
 		return $columns;
