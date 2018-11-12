@@ -17,10 +17,10 @@ class Proxy {
 	public $database = null;
 
 	/**
-	 * @var int $queries The number of queries executed
+	 * @var int $query_counter The number of queries executed
 	 * @access public
 	 */
-	public $queries = 0;
+	public $query_counter = 0;
 
 	/**
 	 * @var array $query_log Array containing all executed queries
@@ -231,9 +231,15 @@ class Proxy {
 		if (!$this->connected) {
 			$this->connect();
 		}
-		$query_log = [$query, $params];
-		$this->query_log[] = $query_log;
-		$this->queries++;
+
+		if (Config::$query_log) {
+			$query_log = [$query, $params];
+			$this->query_log[] = $query_log;
+		}
+
+		if (Config::$query_counter) {
+			$this->query_counter++;
+		}
 
 		$statement = new Statement($this->database, $query);
 

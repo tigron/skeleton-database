@@ -13,25 +13,33 @@ Installation via composer:
 
 ## Howto
 
-    <?php
 
-    use Skeleton\Database\Database;
+Create a database connection:
 
-    // Create a database connection
     $dsn1 = 'mysqli://username:password@localhost/database';
     $dsn2 = 'mysqli://username:password@localhost/database2';
 
-    $db = Database::Get($dsn1, true); // The second parameter makes this dsn default
-    $db = Database::Get(); 			  // returns a connection to dsn1 as this is default
-    $db = Database::Get($dsn2);		  // returns a connection to dsn2, don't make it default
-    $db = Database::Get();			  // returns a connection to dsn1
+    $db = \Skeleton\Database\Database::Get($dsn1, true); // The second parameter makes this dsn default
+    $db = \Skeleton\Database\Database::Get(); 			  // returns a connection to dsn1 as this is default
+    $db = \Skeleton\Database\Database::Get($dsn2);		  // returns a connection to dsn2, don't make it default
+    $db = \Skeleton\Database\Database::Get();			  // returns a connection to dsn1
 
-    // Available operations
-    $result = $db->get_columns('user'); // Returns an array with the columns of table 'user'
+
+
+Get a row of the resultset. The resultset should only contain 1 row
     $result = $db->get_row('SELECT * FROM user WHERE id=?', [ 1 ]); // Returns one row
+
+Get a column, each element in the array contains the value of a row. The result
+should only contain 1 row
     $result = $db->get_column('SELECT id FROM user', []); // Returns 1 column
+
+Get 1 field result.
     $result = $db->get_one('SELECT username FROM user WHERE id=?', [ 1 ]); // Returns 1 field
-    $columns = $db->get_columns('user'); // Gets the columns for table 'user'
+
+Get all columns of a give table
+    $result = $db->get_columns('user');
+
+Insert data into a table
 
     $data = [
     	'username' => 'testuser',
@@ -40,10 +48,29 @@ Installation via composer:
 
     $result = $db->insert('user', $data); // Inserts a new row
 
+Update a row
+
+    $data = [
+    	'username' => 'testuser',
+    	'firstname' => 'test',
+    ];
+
     $where = 'id=' . $db->quote(1);
     $result = $db->update('user', $data, $where); // Updates a row
 
-    // To remove all existing connections
+Run a query manually
+
+	$result = $db->query('DELETE FROM `user` WHERE id=?', [ $user_id ]);
+
+Clear all existing database connections
+
     Database::Reset();
 
-more to come...
+For debug purpose flags can be set to see the queries
+
+	\Skeleton\Database\Config::$query_log = true; // (default = false)
+	\Skeleton\Database\Config::$query_counter = true; // (default = true)
+
+	$database = \Skeleton\Database\Database::get();
+	print_r($database->query_log);
+	print_r($database->query_counter);
