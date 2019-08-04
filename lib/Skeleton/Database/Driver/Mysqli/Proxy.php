@@ -7,7 +7,7 @@
  * @author David Vandemaele <david@tigron.be>
  */
 
-namespace Skeleton\Database;
+namespace Skeleton\Database\Driver\Mysqli;
 
 class Proxy {
 	/**
@@ -87,6 +87,16 @@ class Proxy {
 	}
 
 	/**
+	 * Get the DBMS we are currently connected to
+	 *
+	 * @access public
+	 * @return string $database_type
+	 */
+	public function get_dbms() {
+		return 'mysql';
+	}
+
+	/**
 	 * Filter fields to insert/update table
 	 *
 	 * @access public
@@ -96,6 +106,7 @@ class Proxy {
 	 */
 	private function filter_table_data($table, $data) {
 		$table_fields = $this->get_columns($table);
+
 		$result = [];
 
 		foreach ($table_fields as $field) {
@@ -110,6 +121,18 @@ class Proxy {
 		return $result;
 	}
 
+	/**
+	 * Get all tables for the current database
+	 *
+	 * @access public
+	 * @return array $result An array containing the tables
+	 */
+	public function get_tables() {
+		$query = 'SHOW TABLES';
+		$result = $this->get_column($query);
+
+		return $result;
+	}
 
 	/**
 	 * Get all column names for a given table
@@ -140,6 +163,7 @@ class Proxy {
 		$statement = $this->get_statement('DESC ' . $this->quote_identifier($table), []);
 		$statement->execute();
 		$result = $statement->fetch_assoc();
+
 		return $result;
 	}
 
@@ -232,12 +256,12 @@ class Proxy {
 			$this->connect();
 		}
 
-		if (Config::$query_log) {
+		if (\Skeleton\Database\Config::$query_log) {
 			$query_log = [$query, $params];
 			$this->query_log[] = $query_log;
 		}
 
-		if (Config::$query_counter) {
+		if (\Skeleton\Database\Config::$query_counter) {
 			$this->query_counter++;
 		}
 
@@ -348,6 +372,7 @@ class Proxy {
 			$keys[$key] = $this->quote_identifier($value);
 		}
 
+
 		$query = 'INSERT INTO ' . $this->quote_identifier($table) . ' (' . implode(',', $keys) . ') VALUES (';
 
 		for ($i=0; $i < count($params); $i++) {
@@ -358,6 +383,7 @@ class Proxy {
 		}
 
 		$query .= ') ';
+
 		$statement = $this->get_statement($query, $params);
 		$statement->execute();
 	}

@@ -32,6 +32,17 @@ class Database {
 	private static $pids = [];
 
 	/**
+	 * Supported database drivers
+	 *
+	 * @var $drivers
+	 * @access private
+	 */
+	private static $drivers = [
+		'mysqli' => '/^mysqli:\/\/.*@.*\/.*$/',
+		'pdo' => '/^[a-z]{0,10}:[A-Za-z\/:][a-z].*$/',
+	];
+
+	/**
 	 * Private (disabled) constructor
 	 *
 	 * @access private
@@ -44,7 +55,7 @@ class Database {
 	 * @return DB
 	 * @access public
 	 */
-	public static function Get($dsn = null, $use_as_default = false) {
+	public static function get($dsn = null, $use_as_default = false) {
 		if ($dsn !== null AND $use_as_default) {
 			self::$default_dsn = $dsn;
 		} elseif ($dsn === null AND self::$default_dsn !== null) {
@@ -52,8 +63,7 @@ class Database {
 		}
 
 		/**
-		 * A mysqli connection can only be accessed by the PID that has created it
-		 * Create a new Mysqli object after forking
+		 * Manage connections per PID, use a different connection after forking
 		 */
 		if (isset(self::$pids[$dsn]) and self::$pids[$dsn] != getmypid()) {
 			unset(self::$proxy[$dsn]);
@@ -61,19 +71,34 @@ class Database {
 		}
 
 		if (!isset(self::$proxy[$dsn]) OR self::$proxy[$dsn] == false) {
-			self::$proxy[$dsn] = new Proxy($dsn);
+			// Find the matching driver, first one wins
+			$driver = null;
+			foreach (self::$drivers as $name => $regex) {
+				if (preg_match($regex, $dsn)) {
+					$driver = $name;
+					break;
+				}
+			}
+
+			if ($driver === null) {
+				throw new \Exception('Unsupported database driver');
+			}
+
+			$classname = 'Skeleton\Database\Driver\\' . ucfirst(strtolower($driver)) . '\\Proxy';
+
+			self::$proxy[$dsn] = new $classname($dsn);
 			self::$pids[$dsn] = getmypid();
 		}
+
 		return self::$proxy[$dsn];
 	}
 
 	/**
-	 * Reset
-	 * Resets all existing connections
+	 * Reset all existing connections
 	 *
 	 * @access public
 	 */
-	public static function Reset() {
+	public static function reset() {
 		self::$proxy = [];
 		self::$pids = [];
 	}

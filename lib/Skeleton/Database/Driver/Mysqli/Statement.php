@@ -6,7 +6,7 @@
  * @author Gerry Demaret <gerry@tigron.be>
  */
 
-namespace Skeleton\Database;
+namespace Skeleton\Database\Driver\Mysqli;
 
 class Statement extends \Mysqli_Stmt {
 	/**
@@ -33,22 +33,11 @@ class Statement extends \Mysqli_Stmt {
 	private function get_columns() {
 		$meta = $this->result_metadata();
 
-		// FIXME: This is a check to be compatible with PHP versions > 5.3.6
-		// Not having the database name in the key results in name collisions when using multiple databases
-		if (version_compare(PHP_VERSION, '5.3.6') >= 0) {
-			$database_in_key = true;
-		} else {
-			$database_in_key = false;
-		}
-
 		$columns = [];
 		while ($column = $meta->fetch_field()) {
-			if ($database_in_key === true) {
-				$columns[] = $column->db . '.' . $column->table . '.' . $column->name;
-			} else {
-				$columns[] = $column->table . '.' . $column->name;
-			}
+			$columns[] = $column->db . '.' . $column->table . '.' . $column->name;
 		}
+
 		return $columns;
 	}
 
