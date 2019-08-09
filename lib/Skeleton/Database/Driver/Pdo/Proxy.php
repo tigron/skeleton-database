@@ -9,7 +9,7 @@
 
 namespace Skeleton\Database\Driver\Pdo;
 
-class Proxy {
+class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	/**
 	 * @var $database The PDO database connection
 	 * @access public
@@ -278,6 +278,48 @@ class Proxy {
 	public function get_table_indexes($table) {
 		// FIXME: this is not compatible with, well, anything
 		return [];
+	}
+
+	/**
+	 * Get the ID we have been assigned upon the last insert
+	 *
+	 * Uses sequences for databases that support it, uses LAST_INSERT_ID() for
+	 * MySQL.
+	 *
+	 * @access public
+	 * @param string $table The table to fetch the sequence for
+	 * @param string $column The column to fetch the sequence for
+	 * @return int $id
+	 */
+	public function get_insert_id($table, $column) {
+		switch ($this->get_dbms()) {
+			case 'mysql':
+				return $this->get_one('SELECT LAST_INSERT_ID()');
+			case 'pgsql':
+				// We need to work around cases where the sequence is part of an
+				// inherited table.
+				// https://code.djangoproject.com/ticket/27090
+				// https://www.postgresql.org/message-id/nu7ebq%24a2h%241%40blaine.gmane.org
+				return $this->get_one("
+					SELECT currval((
+						SELECT sn.nspname || '.' ||  s.relname as sequence_name
+						FROM pg_class s
+						JOIN pg_namespace sn ON sn.oid = s.relnamespace
+						JOIN pg_depend d ON d.refobjid = s.oid AND d.refclassid='pg_class'::regclass
+						JOIN pg_attrdef ad ON ad.oid = d.objid AND d.classid = 'pg_attrdef'::regclass
+						JOIN pg_attribute col ON col.attrelid = ad.adrelid AND col.attnum = ad.adnum
+						JOIN pg_class tbl ON tbl.oid = ad.adrelid
+						JOIN pg_namespace n ON n.oid = tbl.relnamespace
+						WHERE s.relkind = 'S'
+						AND d.deptype IN ('a', 'n')
+						AND n.nspname = 'public'
+						AND tbl.relname = '" . $table . "'
+						AND col.attname = '" . $column . "'
+					))");
+				break;
+			default:
+				throw new \Exception('Unsupported DBMS');
+		}
 	}
 
 	/**

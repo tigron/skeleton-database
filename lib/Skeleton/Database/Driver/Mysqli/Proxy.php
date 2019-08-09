@@ -9,7 +9,7 @@
 
 namespace Skeleton\Database\Driver\Mysqli;
 
-class Proxy {
+class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	/**
 	 * @var mysqli $database The database connection to MySQL
 	 * @access public
@@ -178,6 +178,21 @@ class Proxy {
 		$statement->execute();
 		$result = $statement->fetch_assoc();
 		return $result;
+	}
+
+	/**
+	 * Get the ID we have been assigned upon the last insert
+	 *
+	 * Uses sequences for databases that support it, uses LAST_INSERT_ID() for
+	 * MySQL.
+	 *
+	 * @access public
+	 * @param string $table The table to fetch the sequence for
+	 * @param string $column The column to fetch the sequence for
+	 * @return int $id
+	 */
+	public function get_insert_id($table, $column) {
+		return $this->get_one('SELECT LAST_INSERT_ID()');
 	}
 
 	/**
