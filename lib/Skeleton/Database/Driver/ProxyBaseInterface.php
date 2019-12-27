@@ -167,9 +167,25 @@ interface ProxyBaseInterface {
 	/**
 	 * Get the resultset for a query in an associative array
 	 *
-	 * @access private
+	 * @access public
 	 * @param string $query The query to execute
 	 * @param array $params Optional parameters to replace in the query
 	 */
 	public function get_all($query, $params = []);
+
+	/**
+	 * Get an exclusive lock from the database
+	 *
+	 * @access public
+	 * @param string $identifier The lock's identifier
+	 */
+	public function get_lock($identifier);
+
+	/**
+	 * Release an exclusive lock from the database
+	 *
+	 * @access public
+	 * @param string $identifier The lock's identifier
+	 */
+	public function release_lock($identifier);
 }

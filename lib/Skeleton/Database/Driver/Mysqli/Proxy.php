@@ -631,4 +631,30 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$statement = $this->get_statement($query);
 		$statement->execute();
 	}
+
+	/**
+	 * Get an exclusive lock from the database
+	 *
+	 * @access public
+	 * @param string $identifier The lock's identifier
+	 */
+	public function get_lock($identifier) {
+		$lock = (bool)$this->get_one('SELECT GET_LOCK(?, 10)', [ $identifier ]);
+
+		if ($lock === false) {
+			throw new Exception("Could not get a lock on the database");
+		}
+
+		return true;
+	}
+
+	/**
+	 * Release an exclusive lock from the database
+	 *
+	 * @access public
+	 * @param string $identifier The lock's identifier
+	 */
+	public function release_lock($identifier) {
+		return $this->query('SELECT RELEASE_LOCK(?)', [ $identifier ]);
+	}
 }
