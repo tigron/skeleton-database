@@ -27,4 +27,27 @@ class Config {
 	 */
 	public static $query_counter = true;
 
+	/**
+	 * Trim data longer than field length
+	 *
+	 * @access public
+	 * @var boolean $trim_content
+	 */
+	public static $trim_content = true;
+
+	/**
+	 * Purge the properties that are not real storage
+	 *
+	 * @access public
+	 * @var boolean $purge_properties
+	 */
+	public static $purge_properties = true;
+
+	/**
+	 * Adds null for fields nullable where no data is passed
+	 *
+	 * @access public
+	 * @var boolean $auto_null
+	 */
+	public static $auto_null = true;
 }

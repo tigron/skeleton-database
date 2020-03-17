@@ -74,3 +74,13 @@ For debug purpose flags can be set to see the queries
 	$database = \Skeleton\Database\Database::get();
 	print_r($database->query_log);
 	print_r($database->query_counter);
+
+Data quality insurance
+	// Trim data if content is longer than container
+	\Skeleton\Database\Config::$trim_content = true; // (default = true)
+
+	// Remove from objects properties which are not part of the table columns
+	\Skeleton\Database\Config::$purge_properties = true; // (default = true)
+
+	// Set to null every column which is not given as input and supports NULL values
+	\Skeleton\Database\Config::$auto_null = true; // (default = true)

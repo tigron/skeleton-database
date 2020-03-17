@@ -61,7 +61,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @throws Exception Throws an Exception when the Database is unavailable
 	 */
 	public function connect() {
-		mysqli_report(MYSQLI_REPORT_STRICT);
+		mysqli_report(MYSQLI_REPORT_OFF);
 		$settings = parse_url($this->dsn);
 
 		// If we can't even parse the DSN, don't bother
@@ -105,13 +105,61 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @return $filtered_data
 	 */
 	private function filter_table_data($table, $data) {
-		$table_fields = $this->get_columns($table);
+		// if we don't have any correction to do, better go back directly
+		if (\Skeleton\Database\Config::$trim_content === false &&
+			\Skeleton\Database\Config::$purge_properties === false &&
+			\Skeleton\Database\Config::$auto_null === false) {
+			return $data;
+		}
+
+		// getting table definition
+		$table_definition = $this->get_table_definition($table);
 
 		$result = [];
 
-		foreach ($table_fields as $field) {
-			if (array_key_exists($field, $data)) {
-				$result[ $field ] = $data[$field];
+		// if we don't want the purge of the properties not part of the storage
+		if (\Skeleton\Database\Config::$purge_properties === false) {
+			$result = $data;
+		}
+
+		// loop through all fields of the table definition and apply corrections if needed
+		foreach ($table_definition as $field) {
+
+			// trim content
+			if (array_key_exists($field['Field'], $data)) {
+				$value = $data[$field['Field']];
+
+				if (\Skeleton\Database\Config::$trim_content) {
+					$varchar_start = strpos($field['Type'], 'varchar');
+					if ($varchar_start === 0) {
+						$limit = trim(strstr(strstr($field['Type'], '('), ')', true), '(');
+						$value = substr($value, 0, $limit);
+					}
+
+					if ($field['Type'] == 'tinytext' || $field['Type'] == 'tinyblob') {
+						$value = substr($value, 0, 2^8);
+					}
+					if ($field['Type'] == 'text' || $field['Type'] == 'blob') {
+						$value = substr($value, 0, 2^16);
+					}
+					if ($field['Type'] == 'mediumtext' || $field['Type'] == 'mediumblob') {
+						$value = substr($value, 0, 2^24);
+					}
+					if ($field['Type'] == 'longtext' || $field['Type'] == 'longblob') {
+						$value = substr($value, 0, 2^32);
+					}
+				}
+
+				$result[ $field['Field'] ] = $value;
+			}
+
+			// auto null
+			if (\Skeleton\Database\Config::$auto_null) {
+				if (array_key_exists($field['Field'], $data) === false) {
+					if ($field['Null'] == 'YES') {
+						$result[ $field['Field'] ] = null;
+					}
+				}
 			}
 		}
 
