@@ -137,16 +137,16 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 					}
 
 					if ($field['Type'] == 'tinytext' || $field['Type'] == 'tinyblob') {
-						$value = substr($value, 0, 2^8);
+						$value = substr($value, 0, 256);
 					}
 					if ($field['Type'] == 'text' || $field['Type'] == 'blob') {
-						$value = substr($value, 0, 2^16);
+						$value = substr($value, 0, 65536);
 					}
 					if ($field['Type'] == 'mediumtext' || $field['Type'] == 'mediumblob') {
-						$value = substr($value, 0, 2^24);
+						$value = substr($value, 0, 16777216);
 					}
 					if ($field['Type'] == 'longtext' || $field['Type'] == 'longblob') {
-						$value = substr($value, 0, 2^32);
+						$value = substr($value, 0, 4294967296);
 					}
 				}
 
