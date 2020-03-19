@@ -129,7 +129,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 			if (array_key_exists($field['Field'], $data)) {
 				$value = $data[$field['Field']];
 
-				if (\Skeleton\Database\Config::$trim_content) {
+				if (\Skeleton\Database\Config::$trim_content && $value !== null) {
 					$varchar_start = strpos($field['Type'], 'varchar');
 					if ($varchar_start === 0) {
 						$limit = trim(strstr(strstr($field['Type'], '('), ')', true), '(');
