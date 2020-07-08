@@ -76,10 +76,10 @@ For debug purpose flags can be set to see the queries
 	print_r($database->query_counter);
 
 Data quality insurance
-	// Trim data if content is longer than container
+	// Trim data if content is longer than table field
 	\Skeleton\Database\Config::$trim_content = true; // (default = true)
 
-	// Remove from objects properties which are not part of the table columns
+	// Remove from objects properties which don't exist as table columns
 	\Skeleton\Database\Config::$purge_properties = true; // (default = true)
 
 	// Set to null every column which is not given as input and supports NULL values
