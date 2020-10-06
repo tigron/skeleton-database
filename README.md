@@ -68,7 +68,7 @@ Clear all existing database connections
 
 For debug purpose flags can be set to see the queries
 
-	\Skeleton\Database\Config::$query_log = true; // (default = false)
+	\Skeleton\Database\Config::$query_log = false; // (default = false)
 	\Skeleton\Database\Config::$query_counter = true; // (default = true)
 
 	$database = \Skeleton\Database\Database::get();
@@ -77,10 +77,10 @@ For debug purpose flags can be set to see the queries
 
 Data quality insurance
 	// Trim data if content is longer than table field
-	\Skeleton\Database\Config::$trim_content = true; // (default = true)
+	\Skeleton\Database\Config::$auto_trim = false; // (default = false)
 
 	// Remove from objects properties which don't exist as table columns
-	\Skeleton\Database\Config::$purge_properties = true; // (default = true)
+	\Skeleton\Database\Config::$auto_discard = false; // (default = false)
 
 	// Set to null every column which is not given as input and supports NULL values
-	\Skeleton\Database\Config::$auto_null = true; // (default = true)
+	\Skeleton\Database\Config::$auto_null = false; // (default = false)

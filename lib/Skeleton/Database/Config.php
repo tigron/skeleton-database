@@ -31,17 +31,17 @@ class Config {
 	 * Trim data longer than field length
 	 *
 	 * @access public
-	 * @var boolean $trim_content
+	 * @var boolean $auto_trim
 	 */
-	public static $trim_content = true;
+	public static $auto_trim = false;
 
 	/**
 	 * Purge the properties that are not real storage
 	 *
 	 * @access public
-	 * @var boolean $purge_properties
+	 * @var boolean $auto_discard
 	 */
-	public static $purge_properties = true;
+	public static $auto_discard = false;
 
 	/**
 	 * Adds null for fields nullable where no data is passed
@@ -49,5 +49,5 @@ class Config {
 	 * @access public
 	 * @var boolean $auto_null
 	 */
-	public static $auto_null = true;
+	public static $auto_null = false;
 }

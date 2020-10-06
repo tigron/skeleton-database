@@ -106,8 +106,8 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	private function filter_table_data($table, $data) {
 		// if we don't have any correction to do, better go back directly
-		if (\Skeleton\Database\Config::$trim_content === false &&
-			\Skeleton\Database\Config::$purge_properties === false &&
+		if (\Skeleton\Database\Config::$auto_trim === false &&
+			\Skeleton\Database\Config::$auto_discard === false &&
 			\Skeleton\Database\Config::$auto_null === false) {
 			return $data;
 		}
@@ -118,7 +118,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$result = [];
 
 		// if we don't want the purge of the properties not part of the storage
-		if (\Skeleton\Database\Config::$purge_properties === false) {
+		if (\Skeleton\Database\Config::$auto_discard === false) {
 			$result = $data;
 		}
 
@@ -129,7 +129,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 			if (array_key_exists($field['Field'], $data)) {
 				$value = $data[$field['Field']];
 
-				if (\Skeleton\Database\Config::$trim_content && $value !== null) {
+				if (\Skeleton\Database\Config::$auto_trim && $value !== null) {
 					$varchar_start = strpos($field['Type'], 'varchar');
 					if ($varchar_start === 0) {
 						$limit = trim(strstr(strstr($field['Type'], '('), ')', true), '(');
@@ -156,8 +156,10 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 			// auto null
 			if (\Skeleton\Database\Config::$auto_null) {
 				if (array_key_exists($field['Field'], $data) === false) {
-					if ($field['Null'] == 'YES') {
+					if ($field['Null'] == 'YES' && $field['Default'] == null) {
 						$result[ $field['Field'] ] = null;
+					} else if ($field['Null'] == 'YES') {
+						$result[ $field['Field'] ] = $field['Default'];
 					}
 				}
 			}
