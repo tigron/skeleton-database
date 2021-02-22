@@ -303,6 +303,10 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 			}
 			return $values;
 		} else {
+			if (!$this->connected) {
+				$this->connect();
+			}
+
 			return $this->database->real_escape_string($values);
 		}
 	}
