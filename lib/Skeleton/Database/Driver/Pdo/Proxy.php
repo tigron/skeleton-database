@@ -502,6 +502,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$statement->execute();
 		$result = $statement->fetch_assoc();
 
+		if (count($result) == 0) {
+			return [];
+		} elseif (count($result[0]) != 1) {
+			throw new \Exception('Resultset has more than 1 column');
+		}
+
 		$col = [];
 		foreach ($result as $row) {
 			$col[] = array_shift($row);
