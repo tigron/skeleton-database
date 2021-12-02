@@ -50,4 +50,12 @@ class Config {
 	 * @var boolean $auto_null
 	 */
 	public static $auto_null = false;
+
+	/**
+	 * Define the client character set.
+	 *
+	 * @access public
+	 * @var string $charset
+	 */
+	public static $charset = 'utf8';
 }

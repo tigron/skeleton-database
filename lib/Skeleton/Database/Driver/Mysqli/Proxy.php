@@ -82,7 +82,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 			throw new \Exception('Could not connect to database: ' . $this->database->connect_error);
 		}
 
-		$this->database->set_charset('utf8');
+		$this->database->set_charset(\Skeleton\Database\Config::$charset);
 		$this->connected = true;
 	}
 
