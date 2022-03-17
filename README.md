@@ -27,16 +27,20 @@ Create a database connection:
 
 
 Get a row of the resultset. The resultset should only contain 1 row
+
     $result = $db->get_row('SELECT * FROM user WHERE id=?', [ 1 ]); // Returns one row
 
 Get a column, each element in the array contains the value of a row. The result
 should only contain 1 row
+
     $result = $db->get_column('SELECT id FROM user', []); // Returns 1 column
 
 Get 1 field result.
+
     $result = $db->get_one('SELECT username FROM user WHERE id=?', [ 1 ]); // Returns 1 field
 
 Get all columns of a give table
+
     $result = $db->get_columns('user');
 
 Insert data into a table

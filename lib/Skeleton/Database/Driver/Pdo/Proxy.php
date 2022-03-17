@@ -148,7 +148,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		try {
 			$this->database = new \PDO($driver . ':' . $settings, $this->username, $this->password, $this->options);
 		} catch (\PDOException $e) {
-			throw new \Exception('Could not connect to database: ' . $e->getMessage());
+			throw new \Skeleton\Database\Exception\Connection('Could not connect to database: ' . $e->getMessage());
 		}
 
 		$this->database->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Statement', [$this->database]]);
@@ -454,9 +454,9 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 				case is_array($param):
 				case is_object($param):
 				case is_resource($param):
-					throw new \Exception('Unacceptable type used for bindParam.');
+					throw new \\Skeleton\Database\Exception\Query('Unacceptable type used for bindParam.');
 				default:
-					throw new \Exception('Unknown type used for bindParam.');
+					throw new \\Skeleton\Database\Exception\Query('Unknown type used for bindParam.');
 			}
 
 			$statement->bindParam($i, $param, $type);

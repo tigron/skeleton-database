@@ -66,12 +66,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		// If we can't even parse the DSN, don't bother
 		if (!isset($settings['path']) OR !isset($settings['host']) OR !isset($settings['user'])) {
-			throw new \Exception('Could not connect to database: DSN incorrect');
+			throw new \Skeleton\Database\Exception\Connection('Could not connect to database: DSN incorrect');
 		}
 
 		// We don't support connecting to UNIX sockets the traditional way
 		if ($settings['host'] == 'unix(') {
-			throw new \Exception('Could not connect to database: UNIX socket syntax is wrong');
+			throw new \Skeleton\Database\Exception\Connection('Could not connect to database: UNIX socket syntax is wrong');
 		}
 
 		$settings['path'] = substr($settings['path'], 1);
@@ -79,7 +79,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		// If there is an error connecting to the database, stop doing what you're doing
 		if ($this->database->connect_errno != 0) {
-			throw new \Exception('Could not connect to database: ' . $this->database->connect_error);
+			throw new \Skeleton\Database\Exception\Connection('Could not connect to database: ' . $this->database->connect_error);
 		}
 
 		$this->database->set_charset(\Skeleton\Database\Config::$charset);
@@ -368,16 +368,20 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 				case is_array($param):
 				case is_object($param):
 				case is_resource($param):
-					throw new \Exception('Unacceptable type used for bind_param.');
+					throw new \Skeleton\Database\Exception\Query('Unacceptable type used for bind_param.');
 				default:
-					throw new \Exception('Unknown type used for bind_param.');
+					throw new \Skeleton\Database\Exception\Query('Unknown type used for bind_param.');
 			}
 
 			$refs[$key] = &$params[$key];
 		}
 
 		array_unshift($refs, $types);
-		call_user_func_array([$statement, 'bind_param'], $refs);
+		try {
+			call_user_func_array([$statement, 'bind_param'], $refs);
+		} catch (\Exception $e) {
+			throw new \Skeleton\Database\Exception\Query($e->getMessage());
+		}
 		return $statement;
 	}
 
@@ -399,7 +403,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		if (count($result) == 0) {
 			return null;
 		} else if (count($result) > 1) {
-			throw new \Exception('Resultset has more than 1 row');
+			throw new \Skeleton\Database\Exception\Query('Resultset has more than 1 row');
 		}
 
 		return $result[0];
@@ -421,7 +425,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		if (count($result) == 0) {
 			return [];
 		} elseif (count($result[0]) != 1) {
-			throw new \Exception('Resultset has more than 1 column');
+			throw new \Skeleton\Database\Exception\Query('Resultset has more than 1 column');
 		}
 
 		$col = [];
@@ -502,7 +506,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @access public
 	 * @param string $query The query to execute
 	 * @param array $params Optional parameters to replace in the query
-	 * @throws Exception Throws an Exception when the resultset contains more than one row or column
+	 * @throws \Skeleton\Database\Exception\Query Throws an Exception when the resultset contains more than one row or column
 	 */
 	public function get_one($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
@@ -514,13 +518,13 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		}
 
 		if (count($result) > 1) {
-			throw new \Exception('Result of get_one should only contain 1 row');
+			throw new \Skeleton\Database\Exception\Query('Result of get_one should only contain 1 row');
 		}
 
 		$row = array_shift($result);
 
 		if (count($row) != 1) {
-			throw new \Exception('Result of get_one should only contain 1 column');
+			throw new \Skeleton\Database\Exception\query('Result of get_one should only contain 1 column');
 		}
 
 		return array_shift($row);
@@ -702,7 +706,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$lock = (bool)$this->get_one('SELECT GET_LOCK(?, 10)', [ $identifier ]);
 
 		if ($lock === false) {
-			throw new Exception("Could not get a lock on the database");
+			throw new \Skeleton\Database\Exception\Query("Could not get a lock on the database");
 		}
 
 		return true;

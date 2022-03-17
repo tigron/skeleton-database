@@ -18,9 +18,13 @@ class Statement extends \Mysqli_Stmt {
 	 * @access string $query
 	 */
 	public function __construct($database_resource, $query) {
-		parent::__construct($database_resource, $query);
+		try {
+			parent::__construct($database_resource, $query);
+		} catch (\Exception $e) {
+			throw new \Skeleton\Database\Exception\Connection($database_resource->sqlstate . ': ' . $database_resource->error);
+		}
 		if ($this->sqlstate != 0) {
-			throw new \Exception($this->error);
+			throw new \Skeleton\Database\Exception\Connection($this->error);
 		}
 	}
 
@@ -84,7 +88,7 @@ class Statement extends \Mysqli_Stmt {
 	public function execute() {
 		parent::execute();
 		if ($this->errno > 0){
-			throw new \Exception($this->error);
+			throw new \Skeleton\Database\Exception\Query($this->error);
 		}
 	}
 }
