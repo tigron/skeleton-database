@@ -86,7 +86,11 @@ class Statement extends \Mysqli_Stmt {
 	 * @access public
 	 */
 	public function execute() {
-		parent::execute();
+		try {
+			parent::execute();
+		} catch (\Exception $e) {
+			throw new \Skeleton\Database\Exception\Connection($this->sqlstate . ': ' . $this->error);
+		}
 		if ($this->errno > 0){
 			throw new \Skeleton\Database\Exception\Query($this->error);
 		}
