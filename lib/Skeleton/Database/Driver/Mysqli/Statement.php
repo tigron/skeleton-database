@@ -65,7 +65,7 @@ class Statement extends \Mysqli_Stmt {
 			$params[$column] = &$data[$column];
 		}
 
-		$result = call_user_func_array([$this, 'bind_result'], $params);
+		$result = call_user_func_array([$this, 'bind_result'], array_values($params));
 
 		$data = [];
 		while ($this->fetch()) {
