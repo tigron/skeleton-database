@@ -23,6 +23,7 @@ class Statement extends \Mysqli_Stmt {
 		} catch (\Exception $e) {
 			throw new \Skeleton\Database\Exception\Connection($database_resource->sqlstate . ': ' . $database_resource->error);
 		}
+
 		if ($this->sqlstate != 0) {
 			throw new \Skeleton\Database\Exception\Connection($this->error);
 		}
@@ -34,7 +35,7 @@ class Statement extends \Mysqli_Stmt {
 	 * @access public
 	 * @return array $columns Array containing the columns
 	 */
-	private function get_columns() {
+	private function get_columns() : array {
 		$meta = $this->result_metadata();
 
 		$columns = [];
@@ -51,7 +52,7 @@ class Statement extends \Mysqli_Stmt {
 	 * @access public
 	 * @return array $data The array containing the result
 	 */
-	public function fetch_assoc() {
+	public function fetch_assoc() : array {
 		// To work around PHP bug #47928, we need to call store_result() after executing
 		// the query. This shouldn't have a negative impact on performance, it might cause
 		// a slight memory increase.
@@ -85,12 +86,17 @@ class Statement extends \Mysqli_Stmt {
 	 *
 	 * @access public
 	 */
-	public function execute() {
+	public function execute(?array $params = null) : bool {
 		try {
-			parent::execute();
+			if (version_compare(phpversion(), '8.1.0', '>=')) {
+				return parent::execute($params);
+			} else {
+				return parent::execute();
+			}
 		} catch (\Exception $e) {
 			throw new \Skeleton\Database\Exception\Connection($this->sqlstate . ': ' . $this->error);
 		}
+
 		if ($this->errno > 0){
 			throw new \Skeleton\Database\Exception\Query($this->error);
 		}

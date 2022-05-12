@@ -60,7 +60,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @param string $dsn The database source name you want to connect to
 	 * @throws Exception Throws an Exception when the Database is unavailable
 	 */
-	public function connect() {
+	public function connect() : bool {
 		mysqli_report(MYSQLI_REPORT_OFF);
 		$settings = parse_url($this->dsn);
 
@@ -84,6 +84,8 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		$this->database->set_charset(\Skeleton\Database\Config::$charset);
 		$this->connected = true;
+
+		return $this->connected;
 	}
 
 	/**
@@ -92,7 +94,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @access public
 	 * @return string $database_type
 	 */
-	public function get_dbms() {
+	public function get_dbms() : string {
 		return 'mysql';
 	}
 
@@ -104,7 +106,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @param array $data
 	 * @return $filtered_data
 	 */
-	private function filter_table_data($table, $data) {
+	private function filter_table_data($table, $data) : array {
 		// if we don't have any correction to do, better go back directly
 		if (\Skeleton\Database\Config::$auto_trim === false &&
 			\Skeleton\Database\Config::$auto_discard === false &&
@@ -168,6 +170,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		if (count($data) == 0) {
 			return [];
 		}
+
 		return $result;
 	}
 
@@ -177,11 +180,9 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @access public
 	 * @return array $result An array containing the tables
 	 */
-	public function get_tables() {
+	public function get_tables() : array {
 		$query = 'SHOW TABLES';
-		$result = $this->get_column($query);
-
-		return $result;
+		return $this->get_column($query);
 	}
 
 	/**
@@ -191,7 +192,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @param string $table The table to fetch columns for
 	 * @return array $result An array containing the columns
 	 */
-	public function get_columns($table) {
+	public function get_columns($table) : array {
 		$result = $this->get_table_definition($table);
 
 		$columns = [];
@@ -212,9 +213,8 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	public function get_table_definition($table) {
 		$statement = $this->get_statement('DESC ' . $this->quote_identifier($table), []);
 		$statement->execute();
-		$result = $statement->fetch_assoc();
 
-		return $result;
+		return $statement->fetch_assoc();
 	}
 
 	/**
@@ -226,8 +226,8 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	public function get_table_indexes($table) {
 		$statement = $this->get_statement('SHOW INDEXES FROM ' . $this->quote_identifier($table), []);
 		$statement->execute();
-		$result = $statement->fetch_assoc();
-		return $result;
+
+		return $statement->fetch_assoc();
 	}
 
 	/**
@@ -378,7 +378,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		array_unshift($refs, $types);
 		try {
-			call_user_func_array([$statement, 'bind_param'], $refs);
+			call_user_func_array([$statement, 'bind_param'], array_values($refs));
 		} catch (\Exception $e) {
 			throw new \Skeleton\Database\Exception\Query($e->getMessage());
 		}
@@ -464,7 +464,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$query .= ') ';
 
 		$statement = $this->get_statement($query, $params);
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -497,7 +497,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$query .= ' WHERE ' . $where;
 
 		$statement = $this->get_statement($query, $params);
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -552,7 +552,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function query($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -565,7 +565,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$query = 'CREATE DATABASE ' . $this->quote_identifier($database);
 		$statement = $this->get_statement($query);
 
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -578,7 +578,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$query = 'DROP DATABASE ' . $this->quote_identifier($database);
 		$statement = $this->get_statement($query);
 
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -607,7 +607,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -628,7 +628,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -657,7 +657,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -675,7 +675,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
@@ -693,7 +693,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		$statement->execute();
+		return $statement->execute();
 	}
 
 	/**
