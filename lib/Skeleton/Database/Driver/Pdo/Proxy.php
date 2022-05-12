@@ -454,9 +454,9 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 				case is_array($param):
 				case is_object($param):
 				case is_resource($param):
-					throw new \\Skeleton\Database\Exception\Query('Unacceptable type used for bindParam.');
+					throw new \Skeleton\Database\Exception\Query('Unacceptable type used for bindParam.');
 				default:
-					throw new \\Skeleton\Database\Exception\Query('Unknown type used for bindParam.');
+					throw new \Skeleton\Database\Exception\Query('Unknown type used for bindParam.');
 			}
 
 			$statement->bindParam($i, $param, $type);
