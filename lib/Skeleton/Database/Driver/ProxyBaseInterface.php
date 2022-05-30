@@ -152,7 +152,7 @@ interface ProxyBaseInterface {
 	 * @return array $result The resulting associative array
 	 * @throws Exception Throws an Exception when there is more than one row in a resultset
 	 */
-	public function get_row($query, $params);
+	public function get_row($query, $params = []);
 
 	/**
 	 * Get the first column of the resultset

@@ -474,7 +474,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @return array $result The resulting associative array
 	 * @throws Exception Throws an Exception when there is more than one row in a resultset
 	 */
-	public function get_row($query, $params) {
+	public function get_row($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
 		$statement->execute();
 
