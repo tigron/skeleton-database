@@ -89,9 +89,9 @@ class Statement extends \Mysqli_Stmt {
 	public function execute(?array $params = null) : bool {
 		try {
 			if (version_compare(phpversion(), '8.1.0', '>=')) {
-				return parent::execute($params);
+				$response = parent::execute($params);
 			} else {
-				return parent::execute();
+				$response = parent::execute();
 			}
 		} catch (\Exception $e) {
 			throw new \Skeleton\Database\Exception\Connection($this->sqlstate . ': ' . $this->error);
@@ -100,5 +100,6 @@ class Statement extends \Mysqli_Stmt {
 		if ($this->errno > 0){
 			throw new \Skeleton\Database\Exception\Query($this->error);
 		}
+		return $response;
 	}
 }
