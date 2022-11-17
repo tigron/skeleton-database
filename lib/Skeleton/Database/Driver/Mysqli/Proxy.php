@@ -326,10 +326,13 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		}
 
 		if (\Skeleton\Database\Config::$query_log) {
+			$query_params = $params;
 			$query_log = preg_replace_callback(
 			    "/(\\?)/",
-			    function($match) use ($params) {
-			        $param = array_shift($params);
+			    function($match) use (&$query_params) {
+
+
+			        $param = array_shift($query_params);
 
 			        if (is_null($param) == true) {
 			            return 'NULL';
