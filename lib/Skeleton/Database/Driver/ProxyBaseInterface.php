@@ -188,4 +188,28 @@ interface ProxyBaseInterface {
 	 * @param string $identifier The lock's identifier
 	 */
 	public function release_lock($identifier);
+
+	/**
+	 * Start a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction (not supported in all drivers)
+	 */
+	public function transaction_begin($name = null);
+
+	/**
+	 * Roll back a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction (not supported in all drivers)
+	 */
+	public function transaction_rollback($name = null);
+
+	/**
+	 * Commit a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction (not supported in all drivers)
+	 */
+	public function transaction_commit($name = null);
 }

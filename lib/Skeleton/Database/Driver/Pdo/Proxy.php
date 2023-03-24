@@ -795,4 +795,34 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	public function release_lock($identifier) {
 		throw new \Exception('not implemented yet');
 	}
+
+	/**
+	 * Start a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction (not supported in PDO)
+	 */
+	public function transaction_begin($name = null) {
+		$this->database->beginTransaction();
+	}
+
+	/**
+	 * Roll back a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction (not supported in PDO)
+	 */
+	public function transaction_rollback($name = null) {
+		$this->database->rollback();
+	}
+
+	/**
+	 * Commit a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction (not supported in PDO)
+	 */
+	public function transaction_commit($name = null) {
+		$this->database->commit();
+	}
 }

@@ -326,25 +326,22 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		}
 
 		if (\Skeleton\Database\Config::$query_log) {
-			$query_params = $params;
 			$query_log = preg_replace_callback(
-			    "/(\\?)/",
-			    function($match) use (&$query_params) {
+				"/(\\?)/",
+				function($match) use ($params) {
+					$param = array_shift($params);
 
+					if (is_null($param) == true) {
+						return 'NULL';
+					}
 
-			        $param = array_shift($query_params);
+					if (is_string($param) == true) {
+						return '"' . $param . '" ';
+					}
 
-			        if (is_null($param) == true) {
-			            return 'NULL';
-			        }
-
-			        if (is_string($param) == true) {
-			            return '"' . $param . '" ';
-			        }
-
-			        return $param;
-			    },
-			    $query
+					return $param;
+				},
+				$query
 			);
 
 			$this->query_log[] = $query_log;
@@ -470,7 +467,6 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		foreach ($keys as $key => $value) {
 			$keys[$key] = $this->quote_identifier($value);
 		}
-
 
 		$query = 'INSERT INTO ' . $this->quote_identifier($table) . ' (' . implode(',', $keys) . ') VALUES (';
 
@@ -740,5 +736,50 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function release_lock($identifier) {
 		return $this->query('SELECT RELEASE_LOCK(?)', [ $identifier ]);
+	}
+
+	/**
+	 * Start a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction
+	 */
+	public function transaction_begin($name = null) {
+		// $name is nullable from PHP 8.0 and up only
+		if ($name === null) {
+			$this->database->begin_transaction();
+		} else {
+			$this->database->begin_transaction($name);
+		}
+	}
+
+	/**
+	 * Roll back a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction
+	 */
+	public function transaction_rollback($name = null) {
+		// $name is nullable from PHP 8.0 and up only
+		if ($name === null) {
+			$this->database->rollback();
+		} else {
+			$this->database->rollback($name);
+		}
+	}
+
+	/**
+	 * Commit a transaction
+	 *
+	 * @access public
+	 * @param string $name Optional name for the transaction
+	 */
+	public function transaction_commit($name = null) {
+		// $name is nullable from PHP 8.0 and up only
+		if ($name === null) {
+			$this->database->commit();
+		} else {
+			$this->database->commit($name);
+		}
 	}
 }
