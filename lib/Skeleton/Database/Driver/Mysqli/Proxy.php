@@ -61,7 +61,8 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @throws Exception Throws an Exception when the Database is unavailable
 	 */
 	public function connect() : bool {
-		mysqli_report(MYSQLI_REPORT_OFF);
+		// default as of PHP 8.1, ensure similar behaviour on older versions
+		mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 		$settings = parse_url($this->dsn);
 
 		// If we can't even parse the DSN, don't bother
@@ -326,7 +327,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		}
 
 		if (\Skeleton\Database\Config::$query_log) {
-			$params_copy = $params;			
+			$params_copy = $params;
 			$query_log = preg_replace_callback(
 				"/(\\?)/",
 				function($match) use (&$params) {
@@ -344,6 +345,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 				},
 				$query
 			);
+
 			$params = $params_copy;
 			$this->query_log[] = $query_log;
 		}
@@ -394,12 +396,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 			$refs[$key] = &$params[$key];
 		}
 
-		array_unshift($refs, $types);
 		try {
-			call_user_func_array([$statement, 'bind_param'], array_values($refs));
+			$statement->bind_param($types, ...array_values($refs));
 		} catch (\Exception $e) {
-			throw new \Skeleton\Database\Exception\Query($e->getMessage());
+			throw new \Skeleton\Database\Exception\Query($e->getMessage() . ' SQL state ' . $e->getSqlState() . ' statement ' . $statement . ' types ' . $types . ' refs ' . print_r($refs, true));
 		}
+
 		return $statement;
 	}
 
