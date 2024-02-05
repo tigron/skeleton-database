@@ -62,6 +62,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function connect() : bool {
 		mysqli_report(MYSQLI_REPORT_OFF);
+
 		$settings = parse_url($this->dsn);
 
 		// If we can't even parse the DSN, don't bother
@@ -69,13 +70,22 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 			throw new \Skeleton\Database\Exception\Connection('Could not connect to database: DSN incorrect');
 		}
 
-		// We don't support connecting to UNIX sockets the traditional way
+		// UNIX sockets can be used by setting host to unix(/path/to/socket)
 		if ($settings['host'] == 'unix(') {
-			throw new \Skeleton\Database\Exception\Connection('Could not connect to database: UNIX socket syntax is wrong');
+			$settings['socket'] = strtok($settings['path'], ')');
+			$settings['path'] = strtok('');
+			$settings['host'] = 'localhost';
+		} else {
+			$settings['socket'] = null;
+		}
+
+		if (!isset($settings['port'])) {
+			$settings['port'] = null;
 		}
 
 		$settings['path'] = substr($settings['path'], 1);
-		$this->database = @new \Mysqli($settings['host'], $settings['user'], $settings['pass'], $settings['path']);
+
+		$this->database = @new \Mysqli($settings['host'], $settings['user'], $settings['pass'], $settings['path'], $settings['port'], $settings['socket']);
 
 		// If there is an error connecting to the database, stop doing what you're doing
 		if ($this->database->connect_errno != 0) {
