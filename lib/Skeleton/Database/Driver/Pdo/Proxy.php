@@ -152,7 +152,10 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		}
 
 		$this->database->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [__NAMESPACE__ . '\\Statement', [$this->database]]);
-		$this->database->query('SET NAMES \'utf8\'');
+
+		if (in_array($driver, ['sqlite']) === false) {
+			$this->database->query('SET NAMES \'utf8\'');
+		}
 
 		$this->driver = $driver;
 		$this->connected = true;
