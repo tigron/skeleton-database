@@ -178,8 +178,9 @@ interface ProxyBaseInterface {
 	 *
 	 * @access public
 	 * @param string $identifier The lock's identifier
+	 * @param int $timeout Timeout to wait for the lock
 	 */
-	public function get_lock($identifier);
+	public function get_lock($identifier, $timeout = 10);
 
 	/**
 	 * Release an exclusive lock from the database

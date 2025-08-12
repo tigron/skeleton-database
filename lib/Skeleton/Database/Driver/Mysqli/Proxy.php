@@ -728,9 +728,10 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 *
 	 * @access public
 	 * @param string $identifier The lock's identifier
+	 * @param int $timeout Timeout to wait for the lock
 	 */
-	public function get_lock($identifier) {
-		$lock = (bool)$this->get_one('SELECT GET_LOCK(?, 10)', [ $identifier ]);
+	public function get_lock($identifier, $timeout = 10) {
+		$lock = (bool)$this->get_one('SELECT GET_LOCK(?, ?)', [ $identifier, $timeout ]);
 
 		if ($lock === false) {
 			throw new \Skeleton\Database\Exception\Query("Could not get a lock on the database");
