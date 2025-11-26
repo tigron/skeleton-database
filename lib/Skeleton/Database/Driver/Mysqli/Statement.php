@@ -98,7 +98,7 @@ class Statement extends \Mysqli_Stmt {
 		}
 
 		if ($this->errno > 0){
-			throw new \Skeleton\Database\Exception\Query($this->error);
+			throw new \Skeleton\Database\Exception\Query($this->errno . ': ' . $this->error);
 		}
 		return $response;
 	}
