@@ -58,12 +58,16 @@ class Retry {
 	 *
 	 * This probably needs some refining, it's a bit much maybe
 	 *
+	 * @access private
 	 * @param \Skeleton\Database\Driver\Mysqli\Statement $statement
+	 * @param int $attempt
 	 */
 	private static function report(\Skeleton\Database\Driver\Mysqli\Statement $statement, int $attempt): void {
 		if (\Skeleton\Database\Config::$transaction_retry_report && class_exists('\Skeleton\Error\Handler')) {
 			$e = new \Skeleton\Database\Exception\Retry('Database retry report for errno ' . $statement->errno . ': ' . $statement->error . ' attempt ' . $attempt);
-			\Skeleton\Error\Handler::report_exception($e);
+
+			$handler = \Skeleton\Error\Handler::get();
+			$handler->report_exception($e);
 		}
 	}
 }
