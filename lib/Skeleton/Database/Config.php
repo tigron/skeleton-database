@@ -58,4 +58,33 @@ class Config {
 	 * @var string $charset
 	 */
 	public static $charset = 'utf8';
+
+	/**
+	 * Number of times a transaction will be retried on deadlock
+	 *
+	 * @access public
+	 * @var integer $transaction_maximum_retry
+	 */
+	public static $transaction_maximum_retry = 0;
+
+	/**
+	 * Maximum time to wait between retries (in microseconds)
+	 *
+	 * It will use incremental backoff until $transaction_retry_delay, so the
+	 * total *maximum* delay can be calculated using:
+	 *
+	 * $max_delay = $transaction_retry_delay * (($transaction_maximum_retry + 1) / 2);
+	 *
+	 * @access public
+	 * @var integer $transaction_retry_delay defaults to 500000 (0.5s)
+	 */
+	public static $transaction_retry_delay = 500000;
+
+	/**
+	 * Whether or not to report a retry
+	 *
+	 * @access public
+	 * @var integer $transaction_retry_report defaults to true
+	 */
+	public static $transaction_retry_report = true;
 }

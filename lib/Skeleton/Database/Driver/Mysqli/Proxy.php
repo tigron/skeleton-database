@@ -222,7 +222,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function get_table_definition($table) {
 		$statement = $this->get_statement('DESC ' . $this->quote_identifier($table), []);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		return $statement->fetch_assoc();
 	}
@@ -235,7 +240,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function get_table_indexes($table) {
 		$statement = $this->get_statement('SHOW INDEXES FROM ' . $this->quote_identifier($table), []);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		return $statement->fetch_assoc();
 	}
@@ -327,8 +337,8 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 * @access private
 	 * @param string $query The query to prepare a statement for
 	 * @param array $params Optional parameters to replace in the query
-	 * @return Database_Statement $statement
-	 * @throws Exception Throws an Exception when an unknown type is provided
+	 * @return \Skeleton\Database\Driver\Mysqli\Statement $statement
+	 * @throws \Exception Throws an Exception when an unknown type is provided
 	 */
 	private function get_statement($query, $params = []) {
 		if (!$this->connected) {
@@ -336,7 +346,7 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		}
 
 		if (\Skeleton\Database\Config::$query_log) {
-			$params_copy = $params;			
+			$params_copy = $params;
 			$query_log = preg_replace_callback(
 				"/(\\?)/",
 				function($match) use (&$params) {
@@ -424,7 +434,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function get_row($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		$result = $statement->fetch_assoc();
 
@@ -447,7 +462,13 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function get_column($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
+
 		$result = $statement->fetch_assoc();
 
 		if (count($result) == 0) {
@@ -491,7 +512,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$query .= ') ';
 
 		$statement = $this->get_statement($query, $params);
-		return $statement->execute();
+
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -524,7 +550,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$query .= ' WHERE ' . $where;
 
 		$statement = $this->get_statement($query, $params);
-		return $statement->execute();
+
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -537,7 +568,13 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function get_one($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
+
 		$result = $statement->fetch_assoc();
 
 		if (count($result) == 0) {
@@ -566,7 +603,13 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function get_all($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
+
 		return $statement->fetch_assoc();
 	}
 
@@ -579,7 +622,12 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	 */
 	public function query($query, $params = []) {
 		$statement = $this->get_statement($query, $params);
-		return $statement->execute();
+
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -592,7 +640,11 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$query = 'CREATE DATABASE ' . $this->quote_identifier($database);
 		$statement = $this->get_statement($query);
 
-		return $statement->execute();
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -605,7 +657,11 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 		$query = 'DROP DATABASE ' . $this->quote_identifier($database);
 		$statement = $this->get_statement($query);
 
-		return $statement->execute();
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -630,11 +686,21 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		$query = 'CREATE USER ' . $this->quote_identifier($user) . '@' . $this->quote($host) . ' IDENTIFIED BY ' . $password_format . ' ' . $this->quote($password);
 		$statement = $this->get_statement($query);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		return $statement->execute();
+
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -647,15 +713,30 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	public function drop_user($user, $host = '%') {
 		$query = 'REVOKE ALL PRIVILEGES, GRANT OPTION FROM ' . $this->quote_identifier($user) . '@' . $this->quote($host);
 		$statement = $this->get_statement($query);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		$query = 'DROP USER ' . $this->quote_identifier($user) . '@' . $this->quote($host);
 		$statement = $this->get_statement($query);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		return $statement->execute();
+
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -680,11 +761,21 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 
 		$query = 'SET PASSWORD FOR ' . $this->quote_identifier($user) . '@' . $this->quote($host) . ' = ' . $password;
 		$statement = $this->get_statement($query);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		return $statement->execute();
+
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -698,11 +789,21 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	public function grant_all_privileges($database, $user, $host = '%') {
 		$query = 'GRANT ALL PRIVILEGES ON ' . $this->quote_identifier($database) . '.* TO ' . $this->quote_identifier($user) . '@' . $this->quote($host);
 		$statement = $this->get_statement($query);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		return $statement->execute();
+
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
@@ -716,11 +817,21 @@ class Proxy implements \Skeleton\Database\Driver\ProxyBaseInterface {
 	public function revoke_all_privileges($database, $user, $host = '%') {
 		$query = 'REVOKE ALL PRIVILEGES ON ' . $this->quote_identifier($database) . '.* FROM ' . $this->quote_identifier($user) . '@' . $this->quote($host);
 		$statement = $this->get_statement($query);
-		$statement->execute();
+
+		try {
+			$statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			\Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 
 		$query = 'FLUSH PRIVILEGES';
 		$statement = $this->get_statement($query);
-		return $statement->execute();
+
+		try {
+			return $statement->execute();
+		} catch (\Skeleton\Database\Exception\Query $e) {
+			return \Skeleton\Database\Driver\Mysqli\Statement\Retry::handle($statement);
+		}
 	}
 
 	/**
